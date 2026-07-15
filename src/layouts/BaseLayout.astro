@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import PostHog from "@/components/posthog.astro";
 
 interface Props {
   title?: string;
@@ -42,6 +43,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site).toString()} />
+
+    <PostHog />
 
     <!-- Progressive enhancement: if JS is off, reveal-animated content (rendered
          with inline opacity:0 by motion) must still be visible. -->

@@ -56,3 +56,14 @@ const d = story.data;
     </section>
   </article>
 </PageLayout>
+
+<script is:inline define:vars={{ storyTitle: d.title, storyAuthor: d.author ?? null, storySlug: story.id, storyTags: d.tags ?? [] }}>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.posthog?.capture('story_viewed', {
+      story_title: storyTitle,
+      story_author: storyAuthor,
+      story_slug: storySlug,
+      story_tags: storyTags,
+    });
+  });
+</script>

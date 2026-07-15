@@ -26,6 +26,7 @@ export function NewsletterCTA({
   const [done, setDone] = useState(false);
 
   const onSubmit = (e: React.FormEvent) => {
+    window.posthog?.capture("newsletter_subscribed");
     if (action) return; // let the real endpoint handle it
     e.preventDefault();
     if (!email) return;
@@ -52,7 +53,11 @@ export function NewsletterCTA({
         <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
           <div>
             <h2 className="text-h3 font-bold">{heading}</h2>
-            {subheading && <p className="mt-3 max-w-[28rem] text-medium text-white/80">{subheading}</p>}
+            {subheading && (
+              <p className="mt-3 max-w-[28rem] text-medium text-white/80">
+                {subheading}
+              </p>
+            )}
           </div>
           <div>
             <form
@@ -71,12 +76,18 @@ export function NewsletterCTA({
                 onChange={(e) => setEmail(e.target.value)}
                 className="border-white/20 bg-white/95"
               />
-              <Button type="submit" variant="primary" className="shrink-0 bg-electric">
+              <Button
+                type="submit"
+                variant="primary"
+                className="shrink-0 bg-electric"
+              >
                 Subscribe
               </Button>
             </form>
             {done ? (
-              <p className="mt-3 text-small text-white/80">Thanks! Check your email client to confirm.</p>
+              <p className="mt-3 text-small text-white/80">
+                Thanks! Check your email client to confirm.
+              </p>
             ) : (
               <p className="mt-3 text-small text-white/60">
                 No spam — just occasional updates on open knowledge in Belgium.

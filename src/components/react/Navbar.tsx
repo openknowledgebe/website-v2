@@ -14,7 +14,11 @@ type Props = {
 };
 
 const defaults: Required<Omit<Props, "currentPath">> = {
-  logo: { src: "/logo/okbe-withname.svg", alt: "Open Knowledge Belgium", url: "/" },
+  logo: {
+    src: "/logo/okbe-withname.svg",
+    alt: "Open Knowledge Belgium",
+    url: "/",
+  },
   navLinks: [
     { title: "About", url: "/about" },
     { title: "Activities", url: "/activities" },
@@ -50,7 +54,11 @@ export function Navbar(props: Props) {
       }
     >
       <div className="mx-auto flex min-h-16 w-full max-w-[1280px] items-center justify-between px-[5%] md:min-h-18">
-        <a href={logo.url} className="flex items-center" aria-label="Open Knowledge Belgium home">
+        <a
+          href={logo.url}
+          className="flex items-center"
+          aria-label="Open Knowledge Belgium home"
+        >
           <img src={logo.src} alt={logo.alt} className="h-9 w-auto md:h-11" />
         </a>
 
@@ -75,7 +83,12 @@ export function Navbar(props: Props) {
 
         <div className="hidden lg:block">
           <Button asChild variant="primary" size="sm">
-            <a href={cta.url}>{cta.title}</a>
+            <a
+              href={cta.url}
+              onClick={() => window.posthog?.capture("get_involved_clicked")}
+            >
+              {cta.title}
+            </a>
           </Button>
         </div>
 
@@ -122,7 +135,12 @@ export function Navbar(props: Props) {
             </a>
           ))}
           <Button asChild variant="primary" className="mt-4 w-full">
-            <a href={cta.url}>{cta.title}</a>
+            <a
+              href={cta.url}
+              onClick={() => window.posthog?.capture("get_involved_clicked")}
+            >
+              {cta.title}
+            </a>
           </Button>
         </nav>
       </motion.div>
