@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+.astro/
+
+# environment
+.env
+.env.production
+.env.*.local
+
+# macOS
+.DS_Store
+
+# logs
+*.log
+npm-debug.log*
+
+# editor
+.vscode/
+.idea/
+
+# misc / verification artifacts
+.playwright-mcp/
+*.local

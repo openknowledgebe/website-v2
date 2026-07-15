@@ -1,0 +1,163 @@
+---
+import { getEntry } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { Hero } from "@/components/react/Hero";
+import { ActivitiesGrid } from "@/components/react/ActivitiesGrid";
+import { StoriesGrid, type StoryItem } from "@/components/react/StoriesGrid";
+import { NewsletterCTA } from "@/components/react/NewsletterCTA";
+import { Reveal } from "@/components/react/Reveal";
+import {
+  getActivitiesByStatus,
+  toActivityCard,
+  getSortedStories,
+  formatDate,
+  storyExcerpt,
+} from "@/lib/content";
+import { site } from "@/config/site";
+
+const home = await getEntry("pages", "home");
+const h = home!.data as any;
+
+const { active: activeActivities } = await getActivitiesByStatus();
+const activeItems = activeActivities.map(toActivityCard);
+
+const stories = (await getSortedStories()).slice(0, 3);
+const storyItems: StoryItem[] = stories.map((s) => ({
+  slug: s.id,
+  title: s.data.title,
+  date: formatDate(s.data.date),
+  author: s.data.author,
+  excerpt: storyExcerpt(s),
+  tags: s.data.tags ?? [],
+  href: `/stories/${s.id}`,
+}));
+
+const values = [
+  { title: "Advocacy", body: "We champion openness with governments, organisations and the public." },
+  { title: "Research", body: "We explore how open data and knowledge create real-world value." },
+  { title: "Technology", body: "We build and support open-source tools that unlock information." },
+  { title: "Community", body: "We connect people and projects so ideas cross-pollinate." },
+];
+---
+
+<PageLayout title={site.name} description={site.description}>
+  <Hero
+    client:load
+    tagline={h.header.tagline}
+    mission={h.header.mission}
+    cta={h.header.cta}
+    secondaryCta={{ label: "See our activities", to: "/activities" }}
+    image={{ src: h.header.featured_image.image, alt: "Open Knowledge Belgium community" }}
+  />
+
+  <!-- What we do -->
+  <section class="border-y border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24">
+    <div class="mx-auto w-full max-w-[1280px]">
+      <Reveal client:visible>
+        <p class="text-small font-semibold uppercase tracking-wide text-electric">What we do</p>
+        <h2 class="mt-3 max-w-[42rem] text-h2 font-bold text-neutral-darkest">
+          Unlocking knowledge so everyone can use and share it
+        </h2>
+      </Reveal>
+      <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {values.map((v, i) => (
+          <Reveal client:visible delay={i * 0.08}>
+            <div class="h-full rounded-card border border-neutral-light bg-white p-6">
+              <div class="flex size-11 items-center justify-center rounded-full bg-electric/10 text-h6 font-bold text-electric">
+                {i + 1}
+              </div>
+              <h3 class="mt-5 text-h6 font-bold text-neutral-darkest">{v.title}</h3>
+              <p class="mt-2 text-regular text-neutral-dark">{v.body}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Activities -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="mx-auto w-full max-w-[1280px]">
+      {activeItems.length > 0 ? (
+        <>
+          <Reveal client:visible>
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div class="flex items-center gap-3">
+                  <span class="size-2.5 rounded-full bg-emerald-500"></span>
+                  <p class="text-small font-semibold uppercase tracking-wide text-electric">Active now</p>
+                </div>
+                <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">What we're working on</h2>
+              </div>
+              <a href="/activities" class="text-medium font-semibold text-electric hover:underline">
+                See all activities →
+              </a>
+            </div>
+          </Reveal>
+          <div class="mt-12">
+            <ActivitiesGrid client:visible items={activeItems} />
+          </div>
+        </>
+      ) : (
+        <Reveal client:visible>
+          <div class="relative overflow-hidden rounded-[1.5rem] border border-neutral-light bg-neutral-lighter px-6 py-12 md:px-12 md:py-16">
+            <div aria-hidden class="pointer-events-none absolute -top-20 -right-16 h-72 w-72 rounded-full bg-electric/10 blur-3xl"></div>
+            <div class="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div class="max-w-[42rem]">
+                <p class="text-small font-semibold uppercase tracking-wide text-electric">Activities</p>
+                <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">
+                  No active projects right now
+                </h2>
+                <p class="mt-4 text-medium text-neutral-dark">
+                  Have an idea for an open-knowledge project? We help open communities get off the
+                  ground — from a first meetup to a lasting initiative.
+                </p>
+              </div>
+              <div class="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
+                <a
+                  href={`mailto:${site.email}?subject=${encodeURIComponent("I have an idea for an activity")}`}
+                  class="rounded-button bg-electric px-6 py-3 text-center text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+                >
+                  Start an activity
+                </a>
+                <a
+                  href="/activities"
+                  class="rounded-button border border-neutral-darkest px-6 py-3 text-center text-medium font-semibold text-neutral-darkest transition-colors hover:bg-neutral-darkest hover:text-white"
+                >
+                  See what we've done →
+                </a>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+    </div>
+  </section>
+
+  <!-- Stories -->
+  <section class="border-t border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="mx-auto w-full max-w-[1280px]">
+      <Reveal client:visible>
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="text-small font-semibold uppercase tracking-wide text-electric">Stories</p>
+            <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">The latest from our community</h2>
+          </div>
+          <a href="/stories" class="text-medium font-semibold text-electric hover:underline">
+            Discover all stories →
+          </a>
+        </div>
+      </Reveal>
+      <div class="mt-12">
+        <StoriesGrid client:visible items={storyItems} />
+      </div>
+    </div>
+  </section>
+
+  <NewsletterCTA
+    client:visible
+    heading={h.newsletter.heading}
+    subheading={h.newsletter.subheading}
+    contactEmail={site.email}
+  />
+</PageLayout>

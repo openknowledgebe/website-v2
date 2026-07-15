@@ -1,0 +1,105 @@
+@import "@fontsource-variable/work-sans";
+@import "@fontsource/chivo/400.css";
+@import "@fontsource/chivo/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #301948;
+    --electric: #641bff;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-white font-body text-neutral-darkest;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-title;
+  }
+
+  ::selection {
+    background-color: var(--electric);
+    color: #ffffff;
+  }
+}
+
+/* Long-form article / markdown content */
+@layer components {
+  .article {
+    @apply text-medium leading-relaxed text-neutral-dark;
+  }
+  .article > * + * {
+    @apply mt-6;
+  }
+  .article h1 {
+    @apply mt-12 text-h3 font-bold text-neutral-darkest;
+  }
+  .article h2 {
+    @apply mt-12 text-h4 font-bold text-neutral-darkest;
+  }
+  .article h3 {
+    @apply mt-8 text-h5 font-bold text-neutral-darkest;
+  }
+  .article h4 {
+    @apply mt-6 text-h6 font-bold text-neutral-darkest;
+  }
+  .article p {
+    @apply text-medium text-neutral-dark;
+  }
+  .article a {
+    @apply font-medium text-electric underline decoration-electric/30 underline-offset-4 transition-colors hover:decoration-electric;
+  }
+  .article ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+  .article ol {
+    @apply list-decimal space-y-2 pl-6;
+  }
+  .article img {
+    @apply my-8 rounded-image;
+  }
+  .article blockquote {
+    @apply border-l-4 border-electric/40 pl-5 italic text-neutral-dark;
+  }
+  .article hr {
+    @apply my-10 border-neutral-light;
+  }
+  .article strong {
+    @apply font-semibold text-neutral-darkest;
+  }
+  .article code {
+    @apply rounded bg-neutral-lighter px-1.5 py-0.5 text-small;
+  }
+  .article pre {
+    @apply overflow-x-auto rounded-card bg-neutral-darkest p-4 text-small text-white;
+  }
+  .article pre code {
+    @apply bg-transparent p-0 text-white;
+  }
+}
+
+@layer utilities {
+  /* Respect reduced-motion for all Relume framer-motion sections. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
