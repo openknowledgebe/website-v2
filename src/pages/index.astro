@@ -161,3 +161,14 @@ const values = [
     contactEmail={site.email}
   />
 </PageLayout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    var startActivityLink = document.querySelector('a[href^="mailto:"][href*="activity"]');
+    if (startActivityLink) {
+      startActivityLink.addEventListener('click', function () {
+        window.posthog?.capture('start_activity_clicked');
+      });
+    }
+  });
+</script>

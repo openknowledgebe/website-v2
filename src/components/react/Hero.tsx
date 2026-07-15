@@ -49,25 +49,52 @@ export function Hero({ tagline, mission, cta, secondaryCta, image }: Props) {
             >
               {tagline}
             </motion.h1>
-            <motion.p {...item(0.16)} className="mt-6 max-w-[36rem] text-medium text-neutral-dark">
+            <motion.p
+              {...item(0.16)}
+              className="mt-6 max-w-[36rem] text-medium text-neutral-dark"
+            >
               {mission}
             </motion.p>
             <motion.div {...item(0.24)} className="mt-8 flex flex-wrap gap-4">
               {cta && (
                 <Button asChild variant="primary">
-                  <a href={cta.to}>{cta.label}</a>
+                  <a
+                    href={cta.to}
+                    onClick={() =>
+                      window.posthog?.capture("hero_cta_clicked", {
+                        cta_label: cta.label,
+                        cta_type: "primary",
+                      })
+                    }
+                  >
+                    {cta.label}
+                  </a>
                 </Button>
               )}
               {secondaryCta && (
                 <Button asChild variant="secondary">
-                  <a href={secondaryCta.to}>{secondaryCta.label}</a>
+                  <a
+                    href={secondaryCta.to}
+                    onClick={() =>
+                      window.posthog?.capture("hero_cta_clicked", {
+                        cta_label: secondaryCta.label,
+                        cta_type: "secondary",
+                      })
+                    }
+                  >
+                    {secondaryCta.label}
+                  </a>
                 </Button>
               )}
             </motion.div>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, scale: reduce ? 1 : 0.96, y: reduce ? 0 : 24 }}
+            initial={{
+              opacity: 0,
+              scale: reduce ? 1 : 0.96,
+              y: reduce ? 0 : 24,
+            }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.15, ease }}
             className="relative"
