@@ -1,0 +1,22 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Navbar } from "@/components/react/Navbar";
+import Footer from "@/components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description, image } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<BaseLayout title={title} description={description} image={image}>
+  <Navbar client:load currentPath={currentPath} />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+import { getEntry, render } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+
+const about = await getEntry("pages", "about");
+const { Content } = await render(about!);
+const seo = (about!.data as any).seo ?? {};
+---
+
+<PageLayout title={`About · Open Knowledge Belgium`} description={seo.description ?? "About Open Knowledge Belgium"}>
+  <PageHeader
+    eyebrow="About us"
+    title="About Open Knowledge Belgium"
+    lead="An umbrella organisation for numerous open knowledge initiatives in Belgium — connecting communities, researchers, governments and industry."
+  />
+
+  <section class="px-[5%] py-16 md:py-20">
+    <div class="mx-auto w-full max-w-[42rem]">
+      <article class="article">
+        <Content />
+      </article>
+    </div>
+  </section>
+</PageLayout>

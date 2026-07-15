@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { formatDate, storyExcerpt } from "@/lib/content";
+
+export async function getStaticPaths() {
+  const stories = await getCollection("stories");
+  return stories.map((story) => ({
+    params: { slug: story.id },
+    props: { story },
+  }));
+}
+
+const { story } = Astro.props;
+const { Content } = await render(story);
+const d = story.data;
+---
+
+<PageLayout title={`${d.title} · Open Knowledge Belgium`} description={storyExcerpt(story)}>
+  <article>
+    <!-- Header -->
+    <header class="relative overflow-hidden border-b border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-20">
+      <div aria-hidden class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-electric/10 blur-3xl"></div>
+      <div class="relative mx-auto w-full max-w-[42rem]">
+        <a href="/stories" class="text-small font-semibold text-electric hover:underline">← All stories</a>
+        {d.tags?.length > 0 && (
+          <div class="mt-6 flex flex-wrap gap-2">
+            {d.tags.map((t) => (
+              <span class="rounded-badge bg-brand/5 px-3 py-1 text-tiny font-medium text-brand">{t}</span>
+            ))}
+          </div>
+        )}
+        <h1 class="mt-5 text-h1 font-bold leading-[1.08] text-neutral-darkest">{d.title}</h1>
+        <p class="mt-5 text-medium text-neutral">
+          {formatDate(d.date)}{d.author ? ` · ${d.author}` : ""}
+        </p>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <section class="px-[5%] py-16 md:py-20">
+      <div class="mx-auto w-full max-w-[42rem]">
+        <div class="article">
+          <Content />
+        </div>
+
+        <div class="mt-16 border-t border-neutral-light pt-8">
+          <a
+            href="/stories"
+            class="inline-flex items-center gap-2 text-medium font-semibold text-electric hover:underline"
+          >
+            ← Back to all stories
+          </a>
+        </div>
+      </div>
+    </section>
+  </article>
+</PageLayout>

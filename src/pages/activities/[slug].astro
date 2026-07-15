@@ -1,0 +1,172 @@
+---
+import { getCollection, render } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { Reveal } from "@/components/react/Reveal";
+import { logoChipBg } from "@/lib/content";
+import { ArrowForward } from "relume-icons";
+
+export async function getStaticPaths() {
+  const activities = await getCollection("activities");
+  return activities.map((activity) => ({
+    params: { slug: activity.id },
+    props: { activity },
+  }));
+}
+
+const { activity } = Astro.props;
+const { Content } = await render(activity);
+const d = activity.data;
+const members = d.members ?? [];
+const chipBg = logoChipBg(activity.id, d.color);
+// Show the revival CTA on archived activities that are either dead-linked
+// (no live external site) or explicitly flagged `revivable: true`.
+const dormant = d.status === "past" && (!d.to || d.revivable);
+const reviveHref = `mailto:info@openknowledge.be?subject=${encodeURIComponent(
+  `Reviving ${d.name}`,
+)}&body=${encodeURIComponent(
+  `Hi Open Knowledge Belgium,\n\nI'm interested in picking up "${d.name}". Here's a bit about me and what I have in mind:\n\n`,
+)}`;
+---
+
+<PageLayout title={`${d.name} · Open Knowledge Belgium`} description={d.catchphrase}>
+  <!-- Header -->
+  <section class="relative overflow-hidden border-b border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-20">
+    <div aria-hidden class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-electric/10 blur-3xl"></div>
+    <div class="relative mx-auto w-full max-w-[1280px]">
+      <a href="/activities" class="text-small font-semibold text-electric hover:underline">← All activities</a>
+      <div class="mt-5">
+        {d.status === "active" ? (
+          <span class="inline-flex items-center gap-2 rounded-badge bg-emerald-50 px-3 py-1 text-tiny font-semibold uppercase tracking-wide text-emerald-700">
+            <span class="size-2 rounded-full bg-emerald-500"></span>
+            Active now
+          </span>
+        ) : (
+          <span class="inline-flex items-center gap-2 rounded-badge bg-neutral-light px-3 py-1 text-tiny font-semibold uppercase tracking-wide text-neutral-dark">
+            <span class="size-2 rounded-full bg-neutral"></span>
+            Past activity
+          </span>
+        )}
+      </div>
+      <div class="mt-5 flex flex-col gap-6 md:flex-row md:items-center">
+        {d.logo && (
+          <div
+            class="flex size-20 shrink-0 items-center justify-center rounded-card border border-neutral-light p-3 shadow-sm"
+            style={`background-color:${chipBg}`}
+          >
+            <img src={d.logo} alt={`${d.name} logo`} class="max-h-full max-w-full object-contain" />
+          </div>
+        )}
+        <div>
+          <h1 class="text-h1 font-bold leading-[1.05] text-neutral-darkest">{d.name}</h1>
+          {d.catchphrase && <p class="mt-3 max-w-[42rem] text-medium text-neutral-dark">{d.catchphrase}</p>}
+        </div>
+      </div>
+      {d.tags?.length > 0 && (
+        <div class="mt-6 flex flex-wrap gap-2">
+          {d.tags.map((t) => (
+            <span class="rounded-badge bg-brand/5 px-3 py-1 text-tiny font-medium text-brand">{t}</span>
+          ))}
+        </div>
+      )}
+      {d.to && (
+        <a
+          href={d.to}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-8 inline-flex items-center gap-2 rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+        >
+          Visit website
+          <ArrowForward className="size-4" />
+        </a>
+      )}
+    </div>
+  </section>
+
+  <section class="px-[5%] py-16 md:py-20">
+    <div class="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-12 lg:grid-cols-[1.6fr_1fr]">
+      <div>
+        {d.featured_image?.image && (
+          <img
+            src={d.featured_image.image}
+            alt={d.featured_image.alt || d.name}
+            class="mb-10 w-full rounded-image object-cover"
+          />
+        )}
+        <article class="article max-w-[42rem]">
+          <Content />
+        </article>
+
+        {dormant && (
+          <div class="mt-10 max-w-[42rem] overflow-hidden rounded-card border border-electric/30 bg-electric/5 p-6 md:p-8">
+            <div class="flex items-start gap-4">
+              <span class="text-2xl" aria-hidden>🌱</span>
+              <div>
+                <h2 class="text-h6 font-bold text-neutral-darkest">
+                  Want to bring {d.name} back to life?
+                </h2>
+                <p class="mt-2 text-regular text-neutral-dark">
+                  This project isn't running anymore. If you're passionate about it and would like
+                  to pick it up or restart it under Open Knowledge Belgium, we'd love to hear from
+                  you — no strings attached.
+                </p>
+                <a
+                  href={reviveHref}
+                  class="mt-5 inline-flex items-center gap-2 rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+                >
+                  I'd like to pick this up
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="lg:pl-4">
+        <div class="sticky top-24 rounded-card border border-neutral-light bg-neutral-lighter p-6">
+          <h2 class="text-h6 font-bold text-neutral-darkest">Get in touch</h2>
+          <ul class="mt-4 space-y-3 text-regular text-neutral-dark">
+            {d.contact_info?.email && (
+              <li>
+                <a href={`mailto:${d.contact_info.email}`} class="font-medium text-electric hover:underline">
+                  {d.contact_info.email}
+                </a>
+              </li>
+            )}
+            {d.contact_info?.socials?.twitter && (
+              <li><a href={d.contact_info.socials.twitter} target="_blank" rel="noopener noreferrer" class="hover:text-electric">Twitter / X</a></li>
+            )}
+            {d.contact_info?.socials?.facebook && (
+              <li><a href={d.contact_info.socials.facebook} target="_blank" rel="noopener noreferrer" class="hover:text-electric">Facebook</a></li>
+            )}
+            {d.contact_info?.socials?.linkedin && (
+              <li><a href={d.contact_info.socials.linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-electric">LinkedIn</a></li>
+            )}
+          </ul>
+
+          {members.length > 0 && (
+            <>
+              <h2 class="mt-8 text-h6 font-bold text-neutral-darkest">People</h2>
+              <ul class="mt-4 space-y-4">
+                {members.map((m) => (
+                  <li class="flex items-center gap-3">
+                    {m.picture ? (
+                      <img src={m.picture} alt={m.name} class="size-11 rounded-full object-cover" />
+                    ) : (
+                      <div class="flex size-11 items-center justify-center rounded-full bg-brand/10 text-small font-bold text-brand">
+                        {m.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      </div>
+                    )}
+                    <div>
+                      <p class="text-regular font-semibold text-neutral-darkest">{m.name}</p>
+                      {m.task && <p class="text-small text-neutral">{m.task}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </aside>
+    </div>
+  </section>
+</PageLayout>

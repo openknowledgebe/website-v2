@@ -1,0 +1,162 @@
+---
+import { getEntry } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { Reveal } from "@/components/react/Reveal";
+import { site } from "@/config/site";
+
+const team = await getEntry("pages", "team");
+const t = team!.data as any;
+
+const values: string[] = t.values_section?.values ?? [];
+
+const board = t.board ?? null;
+const boardInitials = (name: string) => {
+  const words = name.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  const first = words[0][0];
+  const last = words.length > 1 ? words[words.length - 1][0] : "";
+  return (first + last).toUpperCase();
+};
+
+// Render the single markdown link inside the opportunities text.
+function mdLinksToHtml(s: string): string {
+  return s.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" class="font-semibold text-electric underline underline-offset-4 hover:decoration-electric">$1</a>',
+  );
+}
+const opportunitiesHtml = mdLinksToHtml(t.opportunities?.default_text ?? "");
+---
+
+<PageLayout title="Team · Open Knowledge Belgium" description="The people and values behind Open Knowledge Belgium.">
+  <PageHeader
+    eyebrow="Our team"
+    title="People powered by openness"
+    lead="Open Knowledge Belgium is a grassroots organisation of people — mostly volunteers — passionate about opening up knowledge in Belgium."
+  />
+
+  <!-- Board of Directors -->
+  {board?.members?.length > 0 && (
+    <section class="px-[5%] py-16 md:py-24">
+      <div class="mx-auto w-full max-w-[1280px]">
+        <Reveal client:visible>
+          <p class="text-small font-semibold uppercase tracking-wide text-electric">
+            {board.heading ?? "Board of Directors"}
+          </p>
+          <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">Meet the board</h2>
+          {board.body && <p class="mt-4 max-w-[42rem] text-medium text-neutral-dark">{board.body}</p>}
+        </Reveal>
+        <div class="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+          {board.members.map((m: any, i: number) => (
+            <Reveal client:visible delay={i * 0.06}>
+              <div class="flex h-full flex-col items-center rounded-card border border-neutral-light bg-white p-6 text-center">
+                {m.photo ? (
+                  <img
+                    src={m.photo}
+                    alt={m.name}
+                    class="size-28 rounded-full object-cover shadow-md shadow-brand/10"
+                  />
+                ) : (
+                  <div class="flex size-28 items-center justify-center rounded-full bg-gradient-to-br from-brand to-electric text-h4 font-bold text-white shadow-md shadow-brand/10">
+                    {boardInitials(m.name)}
+                  </div>
+                )}
+                <h3 class="mt-4 text-h6 font-bold text-neutral-darkest">{m.name}</h3>
+                <p class="text-small text-neutral">{m.role}</p>
+                {m.linkedin && (
+                  <a
+                    href={m.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${m.name} on LinkedIn`}
+                    class="group/li mt-3 inline-flex size-9 items-center justify-center rounded-full bg-neutral-lighter transition-colors hover:bg-electric"
+                  >
+                    <img
+                      src="/icons/linkedin.svg"
+                      alt=""
+                      class="size-4 transition group-hover/li:brightness-0 group-hover/li:invert"
+                    />
+                  </a>
+                )}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Values -->
+  <section class="px-[5%] py-16 md:py-24">
+    <div class="mx-auto w-full max-w-[1280px]">
+      <Reveal client:visible>
+        <p class="text-small font-semibold uppercase tracking-wide text-electric">
+          {t.values_section?.heading ?? "Values"}
+        </p>
+        <h2 class="mt-3 max-w-[42rem] text-h2 font-bold text-neutral-darkest">What we stand for</h2>
+      </Reveal>
+      <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {values.map((v, i) => (
+          <Reveal client:visible delay={i * 0.06}>
+            <div class="flex h-full items-start gap-4 rounded-card border border-neutral-light bg-white p-6">
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-electric/10 text-medium font-bold text-electric">
+                {i + 1}
+              </span>
+              <p class="pt-1.5 text-h6 font-bold text-neutral-darkest">{v}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Volunteers -->
+  <section class="border-y border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24">
+    <div class="mx-auto grid w-full max-w-[1280px] grid-cols-1 items-center gap-12 lg:grid-cols-2">
+      <Reveal client:visible direction="right">
+        <div>
+          <p class="text-small font-semibold uppercase tracking-wide text-electric">
+            {t.volunteers?.heading ?? "Volunteers"}
+          </p>
+          <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">Powered by our community</h2>
+          <p class="mt-5 max-w-[36rem] text-medium text-neutral-dark">{t.volunteers?.body}</p>
+          <a
+            href="#opportunities"
+            class="mt-8 inline-flex items-center gap-2 rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+          >
+            Get involved
+          </a>
+        </div>
+      </Reveal>
+      {t.volunteers?.featured_image?.image && (
+        <Reveal client:visible direction="left">
+          <img
+            src={t.volunteers.featured_image.image}
+            alt={t.volunteers.featured_image.alt || "Open Knowledge Belgium volunteers"}
+            class="aspect-[4/3] w-full rounded-image object-cover shadow-xl shadow-brand/10"
+          />
+        </Reveal>
+      )}
+    </div>
+  </section>
+
+  <!-- Opportunities -->
+  <section id="opportunities" class="scroll-mt-24 px-[5%] py-16 md:py-24">
+    <div class="mx-auto w-full max-w-[48rem] text-center">
+      <Reveal client:visible>
+        <p class="text-small font-semibold uppercase tracking-wide text-electric">
+          {t.opportunities?.heading ?? "Opportunities"}
+        </p>
+        <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">Join us</h2>
+        <p class="mt-5 text-medium text-neutral-dark" set:html={opportunitiesHtml}></p>
+        <a
+          href={`mailto:${site.teamEmail}`}
+          class="mt-8 inline-flex items-center gap-2 rounded-button border border-neutral-darkest px-6 py-3 text-medium font-semibold text-neutral-darkest transition-colors hover:bg-neutral-darkest hover:text-white"
+        >
+          {site.teamEmail}
+        </a>
+      </Reveal>
+    </div>
+  </section>
+</PageLayout>

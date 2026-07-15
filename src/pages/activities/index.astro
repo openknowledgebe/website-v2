@@ -1,0 +1,93 @@
+---
+import PageLayout from "@/layouts/PageLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { ActivitiesGrid } from "@/components/react/ActivitiesGrid";
+import { Reveal } from "@/components/react/Reveal";
+import { NewsletterCTA } from "@/components/react/NewsletterCTA";
+import { getActivitiesByStatus, toActivityCard } from "@/lib/content";
+import { site } from "@/config/site";
+
+const { active, past } = await getActivitiesByStatus();
+const activeItems = active.map(toActivityCard);
+const pastItems = past.map(toActivityCard);
+---
+
+<PageLayout
+  title="Activities · Open Knowledge Belgium"
+  description="The projects and communities powered by Open Knowledge Belgium — active now and throughout our history."
+>
+  <PageHeader
+    eyebrow="Activities"
+    title="What we're working on — and what we've built"
+    lead="Open Knowledge Belgium powers projects and communities across the country. Here's what's running right now, and the initiatives that shaped us."
+  />
+
+  <!-- Active now -->
+  <section class="px-[5%] py-16 md:py-20">
+    <div class="mx-auto w-full max-w-[1280px]">
+      <Reveal client:visible>
+        <div class="flex items-center gap-3">
+          <span class="flex size-2.5 items-center justify-center">
+            <span class="size-2.5 rounded-full bg-emerald-500"></span>
+          </span>
+          <p class="text-small font-semibold uppercase tracking-wide text-electric">Active now</p>
+        </div>
+        <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">Running right now</h2>
+      </Reveal>
+
+      <div class="mt-10">
+        {activeItems.length > 0 ? (
+          <ActivitiesGrid client:visible items={activeItems} />
+        ) : (
+          <Reveal client:visible>
+            <div class="flex flex-col items-start gap-5 rounded-card border border-dashed border-neutral-light bg-neutral-lighter p-8 md:flex-row md:items-center md:justify-between md:p-10">
+              <div>
+                <h3 class="text-h5 font-bold text-neutral-darkest">
+                  Nothing running right now — got an idea?
+                </h3>
+                <p class="mt-2 max-w-[36rem] text-medium text-neutral-dark">
+                  We don't have an active activity at the moment. If you're passionate about opening
+                  up knowledge in Belgium, we'd love to help you start one.
+                </p>
+              </div>
+              <a
+                href={`mailto:${site.email}?subject=${encodeURIComponent("I have an idea for an activity")}`}
+                class="shrink-0 rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+              >
+                Start an activity
+              </a>
+            </div>
+          </Reveal>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Past activities -->
+  {pastItems.length > 0 && (
+    <section class="border-t border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24">
+      <div class="mx-auto w-full max-w-[1280px]">
+        <Reveal client:visible>
+          <p class="text-small font-semibold uppercase tracking-wide text-neutral">Past activities</p>
+          <h2 class="mt-3 max-w-[42rem] text-h2 font-bold text-neutral-darkest">
+            The initiatives that shaped us
+          </h2>
+          <p class="mt-4 max-w-[42rem] text-medium text-neutral-dark">
+            Projects and communities we've powered over the years. Many live on independently — follow
+            the links to see where they are today.
+          </p>
+        </Reveal>
+        <div class="mt-12">
+          <ActivitiesGrid client:visible items={pastItems} />
+        </div>
+      </div>
+    </section>
+  )}
+
+  <NewsletterCTA
+    client:visible
+    heading="Want to start or join an activity?"
+    subheading="Tell us what you're passionate about — we help open communities grow."
+    contactEmail={site.email}
+  />
+</PageLayout>

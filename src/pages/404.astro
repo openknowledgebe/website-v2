@@ -1,0 +1,29 @@
+---
+import PageLayout from "@/layouts/PageLayout.astro";
+---
+
+<PageLayout title="Page not found · Open Knowledge Belgium">
+  <section class="flex min-h-[60vh] items-center px-[5%] py-24">
+    <div class="mx-auto w-full max-w-[36rem] text-center">
+      <p class="text-h1 font-bold text-electric">404</p>
+      <h1 class="mt-4 text-h3 font-bold text-neutral-darkest">This page went open… and disappeared</h1>
+      <p class="mt-4 text-medium text-neutral-dark">
+        The page you're looking for doesn't exist or has moved. Let's get you back on track.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <a
+          href="/"
+          class="rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
+        >
+          Back home
+        </a>
+        <a
+          href="/stories"
+          class="rounded-button border border-neutral-darkest px-6 py-3 text-medium font-semibold text-neutral-darkest transition-colors hover:bg-neutral-darkest hover:text-white"
+        >
+          Browse stories
+        </a>
+      </div>
+    </div>
+  </section>
+</PageLayout>
