@@ -170,3 +170,35 @@ const reviveHref = `mailto:info@openknowledge.be?subject=${encodeURIComponent(
     </div>
   </section>
 </PageLayout>
+
+<script is:inline define:vars={{ activityName: d.name, activityStatus: d.status, activitySlug: activity.id, activityHasWebsite: !!d.to }}>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.posthog?.capture('activity_viewed', {
+      activity_name: activityName,
+      activity_status: activityStatus,
+      activity_slug: activitySlug,
+    });
+
+    if (activityHasWebsite) {
+      var visitBtn = document.querySelector('a[target="_blank"][rel="noopener noreferrer"]');
+      if (visitBtn) {
+        visitBtn.addEventListener('click', function () {
+          window.posthog?.capture('activity_website_clicked', {
+            activity_name: activityName,
+            activity_slug: activitySlug,
+          });
+        });
+      }
+    }
+
+    var reviveLink = document.querySelector('a[href^="mailto:"][href*="Reviving"]');
+    if (reviveLink) {
+      reviveLink.addEventListener('click', function () {
+        window.posthog?.capture('activity_revive_clicked', {
+          activity_name: activityName,
+          activity_slug: activitySlug,
+        });
+      });
+    }
+  });
+</script>
