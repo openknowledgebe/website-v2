@@ -46,3 +46,7 @@ export const footerNav = [
 
 export const attributions =
   "Source code available under the MIT license. Content on this site is licensed under a Creative Commons Attribution 4.0 International License.";
+
+// n8n newsletter-signup webhook (OKBE automation instance).
+export const newsletterEndpoint =
+  "https://automation.openknowledge.be/webhook/newsletter-signup";
