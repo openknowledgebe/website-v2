@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.9.0",
   "homepage": "https://openknowledge.be",
   "license": "MIT",
   "scripts": {
