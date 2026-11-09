@@ -106,9 +106,10 @@ referenced like /uploads/stories/<slug>/photo.jpg
 
 ## 📣 Newsletter
 
-The signup form posts to an [n8n](https://n8n.io) automation
-(`automation.openknowledge.be`) that stores subscribers. The endpoint lives in
-[`src/config/site.ts`](src/config/site.ts).
+The signup form posts JSON (`email`, `name`, `interests`, `gdprConsent`) to an endpoint set at
+build time with the `PUBLIC_NEWSLETTER_ENDPOINT` environment variable (the `NEWSLETTER_ENDPOINT`
+repository variable in CI). Without one, the block shows an "email us" link instead, so local
+builds and forks work without any backend. See [`src/config/site.ts`](src/config/site.ts).
 
 ## 📄 License
 

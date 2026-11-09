@@ -4,14 +4,14 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { newsletterEndpoint } from "@/config/site";
+import { newsletterEndpoint, site } from "@/config/site";
 
 type Props = {
   heading: string;
   subheading?: string;
-  /** Override the signup endpoint (defaults to the OKBE n8n webhook). */
+  /** Override the signup endpoint (defaults to PUBLIC_NEWSLETTER_ENDPOINT). */
   endpoint?: string;
-  /** Kept for backwards-compat with existing call sites; unused. */
+  /** Address used for the "email us" fallback when no signup endpoint is configured. */
   contactEmail?: string;
 };
 
@@ -20,7 +20,12 @@ const INTERESTS = ["Events", "Volunteering", "Open data news", "Jobs"] as const;
 
 type Status = "idle" | "loading" | "done" | "error";
 
-export function NewsletterCTA({ heading, subheading, endpoint = newsletterEndpoint }: Props) {
+export function NewsletterCTA({
+  heading,
+  subheading,
+  endpoint = newsletterEndpoint,
+  contactEmail = site.email,
+}: Props) {
   const reduce = useReducedMotion();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -90,7 +95,19 @@ export function NewsletterCTA({ heading, subheading, endpoint = newsletterEndpoi
           </div>
 
           <div>
-            {status === "done" ? (
+            {!endpoint ? (
+              <div className="flex flex-col items-start gap-4">
+                <p className="text-medium text-white/80">
+                  Send us a short email and we'll add you to our newsletter or get you in touch
+                  with the right people.
+                </p>
+                <Button asChild variant="primary" className="bg-electric">
+                  <a href={`mailto:${contactEmail}?subject=${encodeURIComponent("Newsletter")}`}>
+                    Email {contactEmail}
+                  </a>
+                </Button>
+              </div>
+            ) : status === "done" ? (
               <p className="rounded-form bg-white/10 px-5 py-4 text-medium text-white" role="status">
                 {message}
               </p>

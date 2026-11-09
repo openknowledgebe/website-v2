@@ -22,6 +22,9 @@ npm-debug.log*
 .vscode/
 .idea/
 
+# local Claude Code settings
+.claude/settings.local.json
+
 # misc / verification artifacts
 .playwright-mcp/
 *.local

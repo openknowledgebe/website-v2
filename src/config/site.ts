@@ -47,6 +47,9 @@ export const footerNav = [
 export const attributions =
   "Source code available under the MIT license. Content on this site is licensed under a Creative Commons Attribution 4.0 International License.";
 
-// n8n newsletter-signup webhook (OKBE automation instance).
-export const newsletterEndpoint =
-  "https://automation.openknowledge.be/webhook/newsletter-signup";
+// Newsletter signup endpoint, injected at build time (never hard-code it here).
+// Set PUBLIC_NEWSLETTER_ENDPOINT in .env locally, or the NEWSLETTER_ENDPOINT repository
+// variable for the GitHub Pages build. When it is empty, the signup block falls back to
+// an "email us" link instead of a form that cannot submit.
+export const newsletterEndpoint: string =
+  (import.meta.env.PUBLIC_NEWSLETTER_ENDPOINT as string | undefined)?.trim() ?? "";
