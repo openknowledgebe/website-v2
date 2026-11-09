@@ -1,0 +1,14 @@
+---
+// The station map as a plain picture (no live board). Decorative: give it an alt via the label prop.
+import { stationDots } from "@/lib/stations";
+
+interface Props {
+  label?: string;
+}
+const { label } = Astro.props;
+const { width, height, dots } = stationDots();
+---
+
+<svg class="ok-dots" viewBox={`0 0 ${width} ${height}`} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : "true"}>
+  {dots.map((d) => <circle cx={d.x} cy={d.y} r="3.9" />)}
+</svg>

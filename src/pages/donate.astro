@@ -1,0 +1,30 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PageIntro from "@/components/PageIntro.astro";
+import GivePanel from "@/components/GivePanel.astro";
+import GiveCase from "@/components/GiveCase.astro";
+import { donate } from "@/config/site";
+---
+
+<SiteLayout
+  title="Donate · Open Knowledge Belgium"
+  description="Open Knowledge Belgium gives open projects in Belgium a home: servers, a legal structure and help getting started. Give by bank transfer, or sponsor as an organisation."
+  section="donate"
+>
+  <PageIntro title={donate.headline}>
+    <div class="case">
+      <GiveCase />
+    </div>
+  </PageIntro>
+
+  <section class="ok-section ok-give flush" id="give">
+    <div class="wrap">
+      <GivePanel />
+    </div>
+  </section>
+
+  <figure class="ok-band">
+    <img src="/uploads/web/home/osoc18.webp" width="1400" height="933" alt="Students and coaches of Open Summer of Code cheering in a courtyard" loading="lazy" decoding="async" />
+    <figcaption class="wrap">Open Summer of Code, 2018</figcaption>
+  </figure>
+</SiteLayout>

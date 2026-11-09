@@ -1,25 +1,38 @@
 ---
 import { getEntry, render } from "astro:content";
-import PageLayout from "@/layouts/PageLayout.astro";
-import PageHeader from "@/components/PageHeader.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PageIntro from "@/components/PageIntro.astro";
+import { contact } from "@/config/site";
 
 const about = await getEntry("pages", "about");
 const { Content } = await render(about!);
-const seo = (about!.data as any).seo ?? {};
 ---
 
-<PageLayout title={`About · Open Knowledge Belgium`} description={seo.description ?? "About Open Knowledge Belgium"}>
-  <PageHeader
-    eyebrow="About us"
-    title="About Open Knowledge Belgium"
-    lead="An umbrella organisation for numerous open knowledge initiatives in Belgium — connecting communities, researchers, governments and industry."
-  />
+<SiteLayout
+  title="About · Open Knowledge Belgium"
+  description="Open Knowledge Belgium is the non-profit umbrella for open knowledge initiatives in Belgium: what we do, why, and what open knowledge means."
+>
+  <PageIntro title="About" lede="A non-profit umbrella for open knowledge initiatives in Belgium, since 2012." />
 
-  <section class="px-[5%] py-16 md:py-20">
-    <div class="mx-auto w-full max-w-[42rem]">
-      <article class="article">
+  <figure class="ok-band">
+    <img src="/uploads/web/home/working-session.webp" width="1800" height="1200" alt="A full room of students working on laptops at shared tables under strings of bunting" />
+  </figure>
+
+  <section class="ok-section">
+    <div class="wrap ok-rail">
+      <dl class="ok-facts">
+        <dt>Founded</dt>
+        <dd>2012</dd>
+        <dt>Legal form</dt>
+        <dd>Non-profit (vzw / asbl)</dd>
+        <dt>Enterprise number</dt>
+        <dd>{contact.enterpriseNumber}</dd>
+        <dt>Part of</dt>
+        <dd><a href="https://okfn.org/">The Open Knowledge network</a></dd>
+      </dl>
+      <article class="ok-article">
         <Content />
       </article>
     </div>
   </section>
-</PageLayout>
+</SiteLayout>

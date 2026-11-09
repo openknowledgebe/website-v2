@@ -1,0 +1,29 @@
+---
+// Why give: what Open Knowledge Belgium does for its projects and what a gift pays for.
+// Shown above the bank details. Gifts are for all projects, not for one of them.
+interface Props {
+  /** The homepage has just shown the projects, so it gets the short version. */
+  short?: boolean;
+}
+const { short = false } = Astro.props;
+---
+
+{
+  short ? (
+    <p>
+      Your gift goes to all our projects. It pays for what they share: servers, a legal home, and help for the
+      next one to get started.
+    </p>
+  ) : (
+    <>
+      <p>
+        Open Knowledge Belgium is the non-profit home of iRail and Open Summer of Code. OpenStreetMap Belgium and
+        HackYourFuture Belgium grew up here before standing on their own.
+      </p>
+      <p>
+        Your gift goes to all our projects. It pays for what they share: servers, a legal home, and help for the
+        next one to get started.
+      </p>
+    </>
+  )
+}

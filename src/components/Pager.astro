@@ -1,0 +1,37 @@
+---
+// Newer / older links for the stories archive.
+import Arrow from "@/components/Arrow.astro";
+
+interface Props {
+  page: number;
+  total: number;
+}
+const { page, total } = Astro.props;
+const href = (p: number) => (p === 1 ? "/stories" : `/stories/page/${p}`);
+---
+
+{
+  total > 1 && (
+    <nav class="ok-pager" aria-label="Pagination">
+      {page > 1 ? (
+        <a class="arrow-link" href={href(page - 1)} rel="prev">
+          <Arrow dir="left" />
+          Newer
+        </a>
+      ) : (
+        <span />
+      )}
+      <span class="muted">
+        Page {page} of {total}
+      </span>
+      {page < total ? (
+        <a class="arrow-link" href={href(page + 1)} rel="next">
+          Older
+          <Arrow />
+        </a>
+      ) : (
+        <span />
+      )}
+    </nav>
+  )
+}

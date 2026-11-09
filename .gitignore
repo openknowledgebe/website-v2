@@ -28,3 +28,7 @@ npm-debug.log*
 # misc / verification artifacts
 .playwright-mcp/
 *.local
+
+# local design-tool state and editor launch config
+.impeccable/
+.claude/launch.json

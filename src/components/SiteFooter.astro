@@ -1,0 +1,21 @@
+---
+import { contact, socials, attributions, footerNav } from "@/config/site";
+---
+
+<footer class="ok-foot">
+  <div class="wrap">
+    <address>
+      <strong>{contact.name}</strong>
+      {contact.enterpriseNumber}<br />
+      <a href={`mailto:${contact.email}`}>{contact.email}</a>
+    </address>
+    <ul>
+      {footerNav.map((item) => <li><a href={item.to}>{item.label}</a></li>)}
+      <li><a href="/donate">Donate</a></li>
+      <li><a href={socials.github}>GitHub</a></li>
+      <li><a href={socials.linkedin}>LinkedIn</a></li>
+      <li><a href="/rss.xml">RSS</a></li>
+    </ul>
+    <p class="licence">{attributions}</p>
+  </div>
+</footer>

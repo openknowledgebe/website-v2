@@ -32,9 +32,13 @@ const activities = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/activities" }),
   schema: z.object({
     name: z.string(),
-    // "active" = currently running, "past" = archived. Defaults to past, so an
-    // activity is only shown as current when explicitly marked active.
-    status: z.enum(["active", "past"]).default("past"),
+    // "active" = currently running, "paused" = still part of OKBE but waiting for people
+    // to organise it, "past" = archived. Defaults to past, so an activity is only shown
+    // as current when explicitly marked.
+    // "independent" = grew here and spun out into its own organisation.
+    status: z.enum(["active", "paused", "independent", "past"]).default("past"),
+    // Year an independent project left, when known (shown as "Independent since …").
+    independent_since: z.number().optional(),
     // Force the "pick this up / revive it" CTA on a past activity even if it still
     // has a live external site. (Dead-site activities get the CTA automatically.)
     revivable: z.boolean().default(false),
@@ -44,7 +48,12 @@ const activities = defineCollection({
     to: z.string().optional(),
     catchphrase: z.string().optional(),
     featured_image: z
-      .object({ alt: z.string().optional(), image: z.string().optional() })
+      .object({
+        alt: z.string().optional(),
+        image: z.string().optional(),
+        // "contain" shows the whole picture instead of cropping it (for posters and graphics).
+        fit: z.enum(["cover", "contain"]).optional(),
+      })
       .optional(),
     contact_info: z
       .object({

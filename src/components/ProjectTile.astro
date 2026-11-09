@@ -1,0 +1,35 @@
+---
+// One project in a photo grid: its picture (or its logo on a plain panel), name and one line.
+import { activityImage, brandColor, logoChipBg, statusLine, type Activity } from "@/lib/content";
+
+interface Props {
+  activity: Activity;
+  size?: "wide" | "side" | "";
+}
+const { activity, size = "" } = Astro.props;
+const d = activity.data;
+const img = activityImage(activity);
+const contain = d.featured_image?.fit === "contain";
+---
+
+<li class={size}>
+  <a href={`/activities/${activity.id}`}>
+    {
+      img ? (
+        <div
+          class:list={["frame", { contain }]}
+          style={contain ? `background-color:${brandColor(d.color) ?? "#f4f0fd"}` : undefined}
+        >
+          <img src={img} alt={d.featured_image?.alt || ""} loading="lazy" decoding="async" />
+        </div>
+      ) : (
+        <div class="frame logo" style={`background-color:${logoChipBg(activity.id, d.color)}`}>
+          {d.logo && <img src={d.logo} alt="" loading="lazy" decoding="async" />}
+        </div>
+      )
+    }
+    <h3>{d.name}</h3>
+    {d.catchphrase && <p>{d.catchphrase}</p>}
+    {d.status === "independent" && <p class="state">{statusLine(activity)}</p>}
+  </a>
+</li>

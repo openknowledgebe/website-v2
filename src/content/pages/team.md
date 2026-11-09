@@ -7,20 +7,18 @@ board:
   body: Our board sets the direction of Open Knowledge Belgium and safeguards its
     mission, governance and finances.
   members:
+    - name: Pieter Colpaert
+      role: Director
+      photo: /uploads/team/board-pieter.jpg
+      linkedin: https://www.linkedin.com/in/pcolpaert/
+    - name: Michiel Van de Velde
+      role: Director
+      photo: /uploads/team/board-michiel.jpg
+      linkedin: https://www.linkedin.com/in/michiel-van-de-velde-1a9962388/
     - name: Inti Valderas Caro
       role: Director
-      photo: /uploads/team/inti.jpg
+      photo: /uploads/team/board-inti.jpg
       linkedin: https://www.linkedin.com/in/inti-valderas-caro/
-    - name: Klaus Dillen
-      role: Director
-      photo: /uploads/team/klaus.jpg
-      linkedin: https://www.linkedin.com/in/klaus-d-44383732/
-    - name: Jodi De Loof
-      role: Director
-      photo: /uploads/team/jodi.jpg
-      linkedin: https://www.linkedin.com/in/jodideloof/
-    - name: "Lenn In't Ven"
-      role: Director
 values_section:
   heading: Values
   values:
@@ -30,18 +28,17 @@ values_section:
     - Impact
     - Transparency
 volunteers:
-  heading: Volunteers
-  body: We have too many volunteers to sum them all up by name but Open Knowledge
-    Belgium wouldn't be complete without them. All of our activities rely on the
-    great work of passionate volunteers, and we're eternally grateful for that.
+  heading: Volunteers wanted
+  body: We have no volunteers at the moment, and we would like to change that.
+    Open Summer of Code, for one, is looking for people to organise it again,
+    and we are happy to facilitate.
   featured_image:
     image: /uploads/team/openbelgium.jpg
-    alt: Open Belgium volunteers
+    alt: The volunteer crew of the Open Belgium conference in 2019, in matching T-shirts
 team: []
 directors: []
 opportunities:
-  heading: Opportunities
-  default_text: We don't have any career opportunities at the moment but you can
-    always contact us at [team@openknowledge.be](mailto:team@openknowledge.be).
+  heading: Jobs
+  default_text: We have no paid positions at the moment.
 ---
 

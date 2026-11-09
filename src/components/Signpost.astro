@@ -1,0 +1,47 @@
+---
+// "Where next": every page ends with the same short list of places to go, giving first.
+
+interface Props {
+  /** Leave out the entry for the section the visitor is already in. */
+  current?: "donate" | "projects" | "stories";
+}
+const { current } = Astro.props;
+
+const all = [
+  { key: "donate", to: "Donate", what: "A bank transfer, any amount", href: "/donate" },
+  {
+    key: "sponsor",
+    to: "Sponsor as an organisation",
+    what: "For teams that build on open data",
+    href: "/donate#organisation",
+  },
+  {
+    key: "time",
+    to: "Give your time",
+    what: "Code, maps, events, paperwork",
+    href: "/team#volunteer",
+  },
+  { key: "projects", to: "See the projects", what: "What this community has built", href: "/activities" },
+  { key: "stories", to: "Read the stories", what: "The archive, from 2012 on", href: "/stories" },
+];
+const rows = all.filter((r) => r.key !== current).slice(0, 4);
+---
+
+<section class="ok-signpost">
+  <div class="wrap">
+    <h2>Where next</h2>
+    <ul>
+      {
+        rows.map((r) => (
+          <li>
+            <a href={r.href}>
+              <span class="to">{r.to}</span>
+              <span class="what">{r.what}</span>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -2,7 +2,7 @@
 name: iRail
 status: active
 logo: /uploads/activities/irail/irail-logo.svg
-color: '#ffffff'
+color: '#c72929'
 tags:
   - open data
   - open transport
@@ -17,7 +17,12 @@ contact_info:
   email: info@openknowledge.be
   socials:
     github: https://github.com/iRail/iRail
-members: []
+members:
+  - name: Pieter Colpaert
+    task: Founder of iRail
+    picture: /uploads/team/board-pieter.jpg
+    contact_info:
+      linkedin: https://www.linkedin.com/in/pcolpaert/
 ---
 
 iRail provides free, open access to real-time information about Belgian public transport — train schedules, connections, liveboards and disruptions from NMBS/SNCB. It is one of Open Knowledge Belgium's longest-running projects and the backbone of a wide ecosystem of travel apps, research and tools.

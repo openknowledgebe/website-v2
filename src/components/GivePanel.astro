@@ -1,0 +1,164 @@
+---
+// Donate block: bank transfer with an EPC QR code generated at build time (no third party, no fees).
+import qrcode from "qrcode-generator";
+import { donate, contact } from "@/config/site";
+
+const iban = donate.iban.replace(/\s+/g, "").toUpperCase();
+const hasBank = iban.length > 0;
+const ibanPretty = iban.replace(/(.{4})/g, "$1 ").trim();
+const amounts = [5, 10, 25];
+const preset = 10;
+
+// EPC069-12 payload, version 002 (BIC optional), UTF-8.
+function epc(amount?: number) {
+  return [
+    "BCD",
+    "002",
+    "1",
+    "SCT",
+    donate.bic,
+    donate.beneficiary,
+    iban,
+    amount ? `EUR${amount.toFixed(2)}` : "",
+    "",
+    "",
+    donate.message,
+  ].join("\n");
+}
+
+function qrPath(text: string) {
+  const qr = qrcode(0, "M");
+  qr.addData(text, "Byte");
+  qr.make();
+  const n = qr.getModuleCount();
+  let d = "";
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (qr.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+    }
+  }
+  return { d, n };
+}
+
+const codes = hasBank
+  ? [...amounts.map((a) => ({ key: String(a), ...qrPath(epc(a)) })), { key: "other", ...qrPath(epc()) }]
+  : [];
+const sponsorHref = `mailto:${donate.sponsorEmail}?subject=${encodeURIComponent("Sponsoring Open Knowledge Belgium")}`;
+---
+
+<div class="paths" data-give>
+  <div class="path person">
+    <h3>Give by bank transfer</h3>
+    <p class="muted">
+      Pick an amount and scan the code with your banking app. It fills in the transfer; you confirm it there. On
+      your phone, copy the details instead.
+    </p>
+
+    <fieldset class="ok-amounts">
+      <legend>Amount</legend>
+      {
+        amounts.map((a) => (
+          <label>
+            <input type="radio" name="amount" value={String(a)} data-label={`€${a}`} checked={a === preset} />
+            <span>€{a}</span>
+          </label>
+        ))
+      }
+      <label>
+        <input type="radio" name="amount" value="other" data-label="Your choice" />
+        <span>Other</span>
+      </label>
+    </fieldset>
+
+    <div class="ok-transfer">
+      {
+        hasBank ? (
+          <div class="ok-qr">
+            {codes.map((code) => (
+              <svg
+                viewBox={`0 0 ${code.n} ${code.n}`}
+                shape-rendering="crispEdges"
+                role="img"
+                aria-label={
+                  code.key === "other"
+                    ? "Payment QR code, amount of your choice"
+                    : `Payment QR code for ${code.key} euro`
+                }
+                data-code={code.key}
+                hidden={code.key !== String(preset)}
+              >
+                <path d={code.d} fill="#1c1229" />
+              </svg>
+            ))}
+          </div>
+        ) : (
+          <div class="ok-qr is-empty">The QR code appears here once the bank account is added.</div>
+        )
+      }
+
+      <dl class="ok-bank">
+        <dt>Account</dt>
+        <dd>
+          <span>{hasBank ? ibanPretty : "To be added"}</span>
+          {hasBank && <button type="button" data-copy={iban} aria-label="Copy the account number">Copy</button>}
+        </dd>
+        <dt>Name</dt>
+        <dd>
+          <span>{donate.beneficiary}</span>
+          <button type="button" data-copy={donate.beneficiary} aria-label="Copy the name">Copy</button>
+        </dd>
+        <dt>Amount</dt>
+        <dd><span data-amount>€{preset}</span></dd>
+        <dt>Message</dt>
+        <dd>
+          <span>{donate.message}</span>
+          <button type="button" data-copy={donate.message} aria-label="Copy the message">Copy</button>
+        </dd>
+      </dl>
+    </div>
+
+    <p class="fine">
+      To give every month, set up a standing order with the same details. Gifts are not tax-deductible.
+    </p>
+  </div>
+
+  <div class="path org" id="organisation">
+    <h3>Sponsor as an organisation</h3>
+    <p class="muted">
+      Does your organisation build on open data or open source? Sponsor the projects behind it. You get an
+      invoice and a direct line to the board.
+    </p>
+    <a class="btn btn-quiet" href={sponsorHref}>Talk to us about sponsoring</a>
+    <dl class="ok-bank">
+      <dt>Email</dt>
+      <dd><span>{donate.sponsorEmail}</span></dd>
+      <dt>Enterprise number</dt>
+      <dd><span>{contact.enterpriseNumber}</span></dd>
+    </dl>
+  </div>
+</div>
+
+<script>
+  const give = document.querySelector<HTMLElement>("[data-give]");
+  if (give) {
+    const codes = [...give.querySelectorAll<SVGElement>("[data-code]")];
+    const amount = give.querySelector<HTMLElement>("[data-amount]");
+    give.addEventListener("change", (ev) => {
+      const input = ev.target as HTMLInputElement;
+      if (input.name !== "amount") return;
+      for (const code of codes) code.toggleAttribute("hidden", code.dataset.code !== input.value);
+      if (amount) amount.textContent = input.dataset.label ?? "";
+    });
+    for (const button of give.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? "");
+          button.textContent = "Copied";
+        } catch {
+          button.textContent = "Select the text";
+        }
+        setTimeout(() => (button.textContent = "Copy"), 2000);
+      });
+    }
+  }
+</script>

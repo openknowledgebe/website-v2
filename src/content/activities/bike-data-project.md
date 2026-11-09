@@ -15,6 +15,7 @@ catchphrase: An open bike-data platform for and by cyclists — making cyclists
 featured_image:
   alt: ''
   image: /uploads/activities/bike-data-project/illustration.png
+  fit: contain
 contact_info:
   email: info@openknowledge.be
   socials:
