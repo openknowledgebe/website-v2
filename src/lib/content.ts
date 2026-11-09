@@ -35,19 +35,46 @@ export async function getActivities(): Promise<Activity[]> {
   return activities.sort((a, b) => a.data.name.localeCompare(b.data.name));
 }
 
-/** Activities split into currently-active and archived past groups. */
+/** Activities split into running, paused (waiting for organisers), spun out and archived groups. */
 export async function getActivitiesByStatus(): Promise<{
   active: Activity[];
+  paused: Activity[];
+  independent: Activity[];
   past: Activity[];
 }> {
   const all = await getActivities();
   return {
     active: all.filter((a) => a.data.status === "active"),
-    past: all.filter((a) => a.data.status !== "active"),
+    paused: all.filter((a) => a.data.status === "paused"),
+    independent: all.filter((a) => a.data.status === "independent"),
+    past: all.filter((a) => a.data.status === "past"),
   };
 }
 
+/** One short line for a project's status, or null for plain past projects in a list. */
+export function statusLine(a: Activity): string {
+  const d = a.data;
+  if (d.status === "active") return "Running now";
+  if (d.status === "paused") return "Paused, looking for organisers";
+  if (d.status === "independent") {
+    return d.independent_since ? `Independent since ${d.independent_since}` : "Now independent";
+  }
+  return "Past project";
+}
+
+import fs from "node:fs";
 import logoLuminance from "@/data/logo-luminance.json";
+
+/**
+ * Web-sized copy of an activity's featured image (made by scripts/make-web-images.mjs),
+ * falling back to the original upload when no copy exists yet.
+ */
+export function activityImage(a: Activity): string | null {
+  const original = a.data.featured_image?.image;
+  if (!original) return null;
+  const web = `/uploads/web/activities/${a.id}.webp`;
+  return fs.existsSync(`public${web}`) ? web : original;
+}
 
 const BRAND_DARK = "#301948"; // fallback dark chip for light logos with no brand colour
 
@@ -70,44 +97,8 @@ export function logoChipBg(slug: string, color?: string): string {
   return brandColor(color) ?? BRAND_DARK;
 }
 
-export function toActivityCard(a: Activity) {
-  return {
-    slug: a.id,
-    name: a.data.name,
-    catchphrase: a.data.catchphrase,
-    logo: a.data.logo,
-    logoBg: logoChipBg(a.id, a.data.color),
-    image: a.data.featured_image?.image,
-    imageAlt: a.data.featured_image?.alt,
-    tags: a.data.tags ?? [],
-    href: `/activities/${a.id}`,
-  };
-}
-
 export function storyExcerpt(story: Story): string {
   return story.data.excerpt || excerptFrom(story.body ?? "");
-}
-
-export type StoryCard = {
-  slug: string;
-  title: string;
-  date: string;
-  author?: string;
-  excerpt?: string;
-  tags: string[];
-  href: string;
-};
-
-export function toStoryCard(story: Story): StoryCard {
-  return {
-    slug: story.id,
-    title: story.data.title,
-    date: formatDate(story.data.date),
-    author: story.data.author,
-    excerpt: storyExcerpt(story),
-    tags: story.data.tags ?? [],
-    href: `/stories/${story.id}`,
-  };
 }
 
 export const STORIES_PER_PAGE = 24;

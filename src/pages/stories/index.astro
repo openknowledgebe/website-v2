@@ -1,39 +1,26 @@
 ---
-import PageLayout from "@/layouts/PageLayout.astro";
-import PageHeader from "@/components/PageHeader.astro";
-import { StoriesGrid } from "@/components/react/StoriesGrid";
-import { getSortedStories, toStoryCard, STORIES_PER_PAGE } from "@/lib/content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PageIntro from "@/components/PageIntro.astro";
+import StoryList from "@/components/StoryList.astro";
+import Pager from "@/components/Pager.astro";
+import { getSortedStories, STORIES_PER_PAGE } from "@/lib/content";
 
 const all = await getSortedStories();
-const items = all.slice(0, STORIES_PER_PAGE).map(toStoryCard);
 const totalPages = Math.ceil(all.length / STORIES_PER_PAGE);
+const firstYear = all.length ? all[all.length - 1].data.date.getFullYear() : 2012;
 ---
 
-<PageLayout
+<SiteLayout
   title="Stories · Open Knowledge Belgium"
   description="News, updates and reflections from the Open Knowledge Belgium community since 2012."
+  section="stories"
 >
-  <PageHeader
-    eyebrow="Stories"
-    title="News from the open community"
-    lead={`Updates, events and reflections from Open Knowledge Belgium and its projects — ${all.length} stories and counting.`}
-  />
+  <PageIntro title="Stories" lede={`${all.length} stories from the community, going back to ${firstYear}.`} />
 
-  <section class="px-[5%] py-16 md:py-24">
-    <div class="mx-auto w-full max-w-[1280px]">
-      <StoriesGrid client:visible items={items} />
-
-      {totalPages > 1 && (
-        <nav class="mt-14 flex items-center justify-center gap-3" aria-label="Pagination">
-          <span class="rounded-button bg-brand px-5 py-2.5 text-small font-semibold text-white">1</span>
-          <a
-            href="/stories/page/2"
-            class="rounded-button border border-neutral-light px-5 py-2.5 text-small font-semibold text-neutral-darkest transition-colors hover:border-electric hover:text-electric"
-          >
-            Older stories →
-          </a>
-        </nav>
-      )}
+  <section class="ok-section tight">
+    <div class="wrap">
+      <StoryList stories={all.slice(0, STORIES_PER_PAGE)} />
+      <Pager page={1} total={totalPages} />
     </div>
   </section>
-</PageLayout>
+</SiteLayout>

@@ -1,93 +1,137 @@
 ---
-import PageLayout from "@/layouts/PageLayout.astro";
-import PageHeader from "@/components/PageHeader.astro";
-import { ActivitiesGrid } from "@/components/react/ActivitiesGrid";
-import { Reveal } from "@/components/react/Reveal";
-import { NewsletterCTA } from "@/components/react/NewsletterCTA";
-import { getActivitiesByStatus, toActivityCard } from "@/lib/content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PageIntro from "@/components/PageIntro.astro";
+import ProjectTile from "@/components/ProjectTile.astro";
+import IrailMap from "@/components/IrailMap.astro";
+import Arrow from "@/components/Arrow.astro";
+import { getActivitiesByStatus, activityImage } from "@/lib/content";
 import { site } from "@/config/site";
 
-const { active, past } = await getActivitiesByStatus();
-const activeItems = active.map(toActivityCard);
-const pastItems = past.map(toActivityCard);
+const { active, paused, independent, past } = await getActivitiesByStatus();
+
+// Past projects. The ones named here lead, in this order (the first two get the large
+// slots); everything else follows alphabetically, photographs before logos.
+const lead = ["open-summer-of-code", "equalstreetnames", "openstreetmap-belgium", "open-belgium", "hackyourfuture-belgium"];
+const rank = (id: string) => (lead.includes(id) ? lead.indexOf(id) : lead.length);
+const ordered = [...past].sort(
+  (a, b) =>
+    rank(a.id) - rank(b.id) ||
+    Number(Boolean(activityImage(b))) - Number(Boolean(activityImage(a))) ||
+    a.data.name.localeCompare(b.data.name),
+);
+const startHref = `mailto:${site.email}?subject=${encodeURIComponent("I have an idea for a project")}`;
 ---
 
-<PageLayout
-  title="Activities · Open Knowledge Belgium"
-  description="The projects and communities powered by Open Knowledge Belgium — active now and throughout our history."
+<SiteLayout
+  title="Projects · Open Knowledge Belgium"
+  description="The projects and communities that grew under the Open Knowledge Belgium roof: what runs today and what was built since 2012."
+  section="projects"
 >
-  <PageHeader
-    eyebrow="Activities"
-    title="What we're working on — and what we've built"
-    lead="Open Knowledge Belgium powers projects and communities across the country. Here's what's running right now, and the initiatives that shaped us."
-  />
+  <PageIntro title="Projects" lede="Tools and communities that grew under this roof. Some run here today, others have gone independent." />
 
-  <!-- Active now -->
-  <section class="px-[5%] py-16 md:py-20">
-    <div class="mx-auto w-full max-w-[1280px]">
-      <Reveal client:visible>
-        <div class="flex items-center gap-3">
-          <span class="flex size-2.5 items-center justify-center">
-            <span class="size-2.5 rounded-full bg-emerald-500"></span>
-          </span>
-          <p class="text-small font-semibold uppercase tracking-wide text-electric">Active now</p>
-        </div>
-        <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">Running right now</h2>
-      </Reveal>
-
-      <div class="mt-10">
-        {activeItems.length > 0 ? (
-          <ActivitiesGrid client:visible items={activeItems} />
+  <section class="ok-section tight">
+    <div class="wrap">
+      <header>
+        <h2>Running now</h2>
+      </header>
+      {
+        active.length > 0 ? (
+          <ul class="ok-running">
+            {active.map((a) => (
+              <li>
+                <a class="picture" href={`/activities/${a.id}`} tabindex="-1" aria-hidden="true">
+                  {activityImage(a) ? (
+                    <img src={activityImage(a)!} alt="" loading="lazy" decoding="async" />
+                  ) : a.id === "irail" ? (
+                    <IrailMap />
+                  ) : (
+                    a.data.logo && <img class="logo" src={a.data.logo} alt="" />
+                  )}
+                </a>
+                <div>
+                  <h3><a href={`/activities/${a.id}`}>{a.data.name}</a></h3>
+                  {a.data.catchphrase && <p>{a.data.catchphrase}</p>}
+                  <a class="arrow-link" href={`/activities/${a.id}`}>About {a.data.name} <Arrow /></a>
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <Reveal client:visible>
-            <div class="flex flex-col items-start gap-5 rounded-card border border-dashed border-neutral-light bg-neutral-lighter p-8 md:flex-row md:items-center md:justify-between md:p-10">
-              <div>
-                <h3 class="text-h5 font-bold text-neutral-darkest">
-                  Nothing running right now — got an idea?
-                </h3>
-                <p class="mt-2 max-w-[36rem] text-medium text-neutral-dark">
-                  We don't have an active activity at the moment. If you're passionate about opening
-                  up knowledge in Belgium, we'd love to help you start one.
-                </p>
-              </div>
-              <a
-                href={`mailto:${site.email}?subject=${encodeURIComponent("I have an idea for an activity")}`}
-                class="shrink-0 rounded-button bg-electric px-6 py-3 text-medium font-semibold text-white transition-colors hover:bg-electric-600"
-              >
-                Start an activity
-              </a>
-            </div>
-          </Reveal>
-        )}
-      </div>
+          <div class="ok-empty">
+            <p>Nothing is running right now. Have an idea? We help open projects get started.</p>
+            <a class="btn btn-primary" href={startHref}>Start a project</a>
+          </div>
+        )
+      }
     </div>
   </section>
 
-  <!-- Past activities -->
-  {pastItems.length > 0 && (
-    <section class="border-t border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24">
-      <div class="mx-auto w-full max-w-[1280px]">
-        <Reveal client:visible>
-          <p class="text-small font-semibold uppercase tracking-wide text-neutral">Past activities</p>
-          <h2 class="mt-3 max-w-[42rem] text-h2 font-bold text-neutral-darkest">
-            The initiatives that shaped us
-          </h2>
-          <p class="mt-4 max-w-[42rem] text-medium text-neutral-dark">
-            Projects and communities we've powered over the years. Many live on independently — follow
-            the links to see where they are today.
-          </p>
-        </Reveal>
-        <div class="mt-12">
-          <ActivitiesGrid client:visible items={pastItems} />
+  {
+    paused.length > 0 && (
+      <section class="ok-section tight">
+        <div class="wrap">
+          <header>
+            <h2>Looking for organisers</h2>
+            <p>Still part of Open Knowledge Belgium, waiting for people to run them again. We are happy to facilitate.</p>
+          </header>
+          <ul class="ok-running">
+            {paused.map((a) => (
+              <li>
+                <a class="picture" href={`/activities/${a.id}`} tabindex="-1" aria-hidden="true">
+                  {activityImage(a) ? (
+                    <img src={activityImage(a)!} alt="" loading="lazy" decoding="async" />
+                  ) : (
+                    a.data.logo && <img class="logo" src={a.data.logo} alt="" />
+                  )}
+                </a>
+                <div>
+                  <h3><a href={`/activities/${a.id}`}>{a.data.name}</a></h3>
+                  {a.data.catchphrase && <p>{a.data.catchphrase}</p>}
+                  <a class="arrow-link" href={`/activities/${a.id}#organise`}>Help organise it <Arrow /></a>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
-  <NewsletterCTA
-    client:visible
-    heading="Want to start or join an activity?"
-    subheading="Tell us what you're passionate about — we help open communities grow."
-    contactEmail={site.email}
-  />
-</PageLayout>
+  {
+    independent.length > 0 && (
+      <section class="ok-section ok-made">
+        <div class="wrap">
+          <header>
+            <h2>Now independent</h2>
+            <p>We hosted these while they grew. Today they stand on their own, and we are proud of them.</p>
+          </header>
+          <ul class="ok-mosaic">
+            {independent.map((a, i) => (
+              <ProjectTile activity={a} size={independent.length === 2 ? (i === 0 ? "wide" : "side") : ""} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    ordered.length > 0 && (
+      <section class="ok-section ok-made">
+        <div class="wrap">
+          <header>
+            <h2>Built since 2012</h2>
+            <p>Many of these carry on independently. Some are waiting for someone to pick them up.</p>
+          </header>
+          <ul class="ok-mosaic">
+            {ordered.map((a, i) => <ProjectTile activity={a} size={i === 0 ? "wide" : i === 1 ? "side" : ""} />)}
+          </ul>
+          <div class="ok-more">
+            <p class="muted">Want to start something new?</p>
+            <a class="arrow-link" href={startHref}>Tell us your idea <Arrow /></a>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</SiteLayout>

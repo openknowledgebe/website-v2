@@ -1,6 +1,6 @@
 ---
 name: OpenStreetMap Belgium
-status: past
+status: independent
 logo: /uploads/activities/openstreetmap-belgium/osmbe-logo.png
 color: '#ffffff'
 tags:
@@ -20,6 +20,8 @@ contact_info:
 members: []
 ---
 
-OpenStreetMap is a free, open and editable map of the whole world, built by a community of mappers who contribute and maintain data about roads, trails, cafés, railway stations and much more. OpenStreetMap Belgium was the local community that promoted and supported the use of OpenStreetMap across Belgium.
+OpenStreetMap is a free, open and editable map of the whole world, built by a community of mappers who contribute and maintain data about roads, trails, cafés, railway stations and much more. OpenStreetMap Belgium is the local community that promotes and supports the use of OpenStreetMap across Belgium.
 
-It organised mapathons, meetups and workshops, maintained Belgian imports and tools, and worked with governments, companies and non-profits to keep open geographic data of Belgium accurate, up to date and freely available to everyone.
+It organises mapathons, meetups and workshops, maintains Belgian imports and tools, and works with governments, companies and non-profits to keep open geographic data of Belgium accurate, up to date and freely available to everyone.
+
+Open Knowledge Belgium was the proud host of the OpenStreetMap community in Belgium until it spun out to stand on its own. You find it at [openstreetmap.be](https://openstreetmap.be/).

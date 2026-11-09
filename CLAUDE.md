@@ -21,41 +21,71 @@ Node 22+ is required. Deploys happen automatically via GitHub Actions on push to
 
 ```
 src/
-├── components/react/   # interactive/animated islands (Hero, Navbar, grids, NewsletterCTA, Reveal)
-├── components/ui/      # design-system primitives (button, card, input)
+├── components/         # Astro components: SiteNav, SiteFooter, Signpost, IrailMap, GivePanel, …
 ├── content/{stories,activities,pages}/   # Markdown content collections
-├── config/site.ts      # nav, footer, socials, contact — single source
-├── lib/content.ts      # collection helpers (sorting, excerpts, cards, logo colours)
-├── data/logo-luminance.json  # generated: which activity logos are light/dark
+├── config/site.ts      # nav, footer, socials, contact, bank account — single source
+├── layouts/SiteLayout.astro  # head + nav + "Where next" signpost + footer, used by every page
+├── lib/content.ts      # collection helpers (sorting, excerpts, logo colours, web image paths)
+├── lib/stations.ts     # projects station coordinates for the map
+├── data/               # generated: stations.json, logo-luminance.json
+├── styles/site.css     # all styles, plain CSS, scoped under body.ok
 └── pages/              # routes
 public/uploads/         # all images (referenced with absolute /uploads/… paths)
-scripts/                # analyze-logos.mjs, migrate-content.mjs (one-shot import)
+public/uploads/web/     # generated web-sized copies of the large photos
+scripts/                # analyze-logos.mjs, make-web-images.mjs, migrate-content.mjs (one-shot import)
 ```
+
+There is no Tailwind, no React and no animation library: pages are Astro components with one
+stylesheet and a few small inline scripts. `PRODUCT.md` records who the site is for and what must
+stay true, and `DESIGN.md` records the visual system (tokens, type scale, components,
+what is refused); read both before design work.
 
 ## Content notes
 
-- **Activities** (`src/content/activities/*.md`): `status: active | past` (default `past`).
-  Active ones appear under “Active now”; with none active the page shows an invitation band.
-  The logo chip background is picked automatically from each logo's brightness — after adding or
-  replacing a logo, run `node scripts/analyze-logos.mjs` to refresh `data/logo-luminance.json`.
-- **Stories** (`src/content/stories/*.md`): paginated 24 per page.
+- **Activities** (`src/content/activities/*.md`, shown as "Projects"):
+  `status: active | paused | independent | past` (default `past`). Active ones appear under
+  "Running now", paused ones (still part of OKBE, waiting for organisers) under "Looking for
+  organisers", independent ones (spun out of OKBE; optional `independent_since: <year>`) under
+  "Now independent"; with none active the page shows an invitation. After adding or replacing a `featured_image`, run `node scripts/make-web-images.mjs`
+  (pages use the copy in `public/uploads/web/activities/<slug>.webp` and fall back to the original).
+  After adding or replacing a logo, run `node scripts/analyze-logos.mjs` to refresh
+  `data/logo-luminance.json`, which picks the background behind each logo.
+- **Stories** (`src/content/stories/*.md`): listed by year, paginated 24 per page.
 - **Team** (`src/content/pages/team.md`): board members live under `board.members`
-  (`name`, `role`, `photo`, `linkedin`); photos in `public/uploads/team/`.
+  (`name`, `role`, `photo`, `linkedin`); photos in `public/uploads/team/`. The homepage reads the
+  same list.
+- **Donations**: `donate` in `src/config/site.ts` holds the IBAN and the headline of the ask.
+  `GiveCase.astro` is the reason to give, `GivePanel.astro` the bank details and QR codes (built
+  at build time). Gifts are for all projects: do not centre the ask on iRail, and do not publish
+  cost figures. Gifts are not tax-deductible; do not claim otherwise. The ask must name the thing
+  and the stake: never a headline with an unexplained "it".
+- **Not published, on purpose**: a postal address, and any newsletter signup (there is no
+  newsletter). Do not write that the organisation is run by volunteers.
+- **Homepage** is `src/pages/index.astro` (no Markdown file). Its iRail map is a static
+  picture drawn from `src/data/stations.json` at build time.
+- **iRail is not embedded here**: no live departures, no calls to `api.irail.be`. The site shows
+  it in its own colours (`IrailMap.astro`) and links to https://irail.be/.
+
+## Design rules
+
+- White ground, ink `#1c1229`, and the logo purple `#641bff` only on actions and links.
+- One typeface (Work Sans Variable). Headings stay modest: no display sizes above 3rem.
+- Real photographs and maps carry the pages. No decorative shapes, gradients, cards with borders,
+  eyebrow labels or numbered sections. Keep copy short.
+- Every page ends with the "Where next" signpost and offers a way to give.
+- Text on the tinted donate band uses `#4f4466`, not the grey used on white.
 
 ## Gotchas worth knowing
 
-- **The Relume Tailwind preset replaces some core scales.** It overrides `maxWidth`
-  (only `xxs…xxl`, and `xl` = 64rem!), `fontSize`, and `gradientColorStops`, so classes like
-  `max-w-2xl` / `max-w-3xl` silently render full-width. Use arbitrary values such as
-  `max-w-[42rem]` for reading measures.
-- **Animation uses the `motion` package** (`import … from "motion/react"`), **not** `framer-motion`.
-- **`relume-icons`** ships ~60 icons only (e.g. no `ArrowOutward` — use `ArrowForward`).
+- **Markdown headings are shifted down**: a `#` heading inside content renders as `<h2>` (see the
+  small rehype plugin in `astro.config.mjs`), because the page title is already the `<h1>`.
+- **CSS resets use `:where()`** so single-class rules can override them. Keep it that way; a
+  plain `.ok p { margin: 0 }` would beat component rules.
+- **Images with `width`/`height` attributes need `height: auto`** in CSS when their width is fluid.
 - **pnpm 11.9+** reads native-build approval from `pnpm-workspace.yaml`
   (`allowBuilds: { esbuild: true, sharp: true }` + `onlyBuiltDependencies`); the `package.json`
   `pnpm` field is ignored, and `astro build` fails its dependency check without it.
-- **No-JS fallback:** `motion` bakes `opacity:0` into the SSR HTML, so `BaseLayout` has a
-  `<noscript>` rule that forces revealed content visible. Keep it.
-- The `Duplicate id "team"` build warning only appears while `pnpm dev` is running alongside a
+- The `Duplicate id` build warning only appears while `pnpm dev` is running alongside a
   build (shared `.astro` cache) — a clean `pnpm build` is silent. Not a real bug.
 
 ## Verifying changes

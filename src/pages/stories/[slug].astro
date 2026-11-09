@@ -1,6 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
-import PageLayout from "@/layouts/PageLayout.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PageIntro from "@/components/PageIntro.astro";
+import Arrow from "@/components/Arrow.astro";
 import { formatDate, storyExcerpt } from "@/lib/content";
 
 export async function getStaticPaths() {
@@ -14,45 +16,41 @@ export async function getStaticPaths() {
 const { story } = Astro.props;
 const { Content } = await render(story);
 const d = story.data;
+// Tags as written by many authors over ten years: drop repeats and housekeeping labels.
+const tags = [...new Set(d.tags.map((t) => t.trim().toLowerCase()))].filter((t) => t && t !== "featured");
 ---
 
-<PageLayout title={`${d.title} · Open Knowledge Belgium`} description={storyExcerpt(story)}>
+<SiteLayout title={`${d.title} · Open Knowledge Belgium`} description={storyExcerpt(story)} section="stories">
   <article>
-    <!-- Header -->
-    <header class="relative overflow-hidden border-b border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-20">
-      <div aria-hidden class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-electric/10 blur-3xl"></div>
-      <div class="relative mx-auto w-full max-w-[42rem]">
-        <a href="/stories" class="text-small font-semibold text-electric hover:underline">← All stories</a>
-        {d.tags?.length > 0 && (
-          <div class="mt-6 flex flex-wrap gap-2">
-            {d.tags.map((t) => (
-              <span class="rounded-badge bg-brand/5 px-3 py-1 text-tiny font-medium text-brand">{t}</span>
-            ))}
+    <PageIntro title={d.title} back={{ href: "/stories", label: "All stories" }} />
+
+    <section class="ok-section tight">
+      <div class="wrap ok-rail">
+        <dl class="ok-facts">
+          <dt>Published</dt>
+          <dd><time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date)}</time></dd>
+          {d.author && (
+            <>
+              <dt>By</dt>
+              <dd>{d.author}</dd>
+            </>
+          )}
+          {tags.length > 0 && (
+            <>
+              <dt>About</dt>
+              <dd>{tags.join(", ")}</dd>
+            </>
+          )}
+        </dl>
+        <div>
+          <div class="ok-article">
+            <Content />
           </div>
-        )}
-        <h1 class="mt-5 text-h1 font-bold leading-[1.08] text-neutral-darkest">{d.title}</h1>
-        <p class="mt-5 text-medium text-neutral">
-          {formatDate(d.date)}{d.author ? ` · ${d.author}` : ""}
-        </p>
-      </div>
-    </header>
-
-    <!-- Body -->
-    <section class="px-[5%] py-16 md:py-20">
-      <div class="mx-auto w-full max-w-[42rem]">
-        <div class="article">
-          <Content />
-        </div>
-
-        <div class="mt-16 border-t border-neutral-light pt-8">
-          <a
-            href="/stories"
-            class="inline-flex items-center gap-2 text-medium font-semibold text-electric hover:underline"
-          >
-            ← Back to all stories
-          </a>
+          <p class="ok-after">
+            <a class="arrow-link" href="/stories"><Arrow dir="left" /> All stories</a>
+          </p>
         </div>
       </div>
     </section>
   </article>
-</PageLayout>
+</SiteLayout>

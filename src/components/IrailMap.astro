@@ -1,0 +1,18 @@
+---
+// iRail as iRail shows itself: its red, its white mark and name, over the map of its stations.
+// A picture only. Nothing here talks to iRail; the link to irail.be lives next to it.
+import { getEntry } from "astro:content";
+import StationDots from "@/components/StationDots.astro";
+import { brandColor } from "@/lib/content";
+
+const irail = await getEntry("activities", "irail");
+const red = brandColor(irail?.data.color) ?? "#c72929";
+---
+
+<div class="ok-irail" style={`background-color:${red}`}>
+  <p class="lockup">
+    {irail?.data.logo && <img src={irail.data.logo} alt="" width="39" height="30" />}
+    <span>iRail</span>
+  </p>
+  <StationDots label="Map of Belgium made of the train stations iRail covers" />
+</div>

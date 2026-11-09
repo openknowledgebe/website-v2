@@ -1,0 +1,57 @@
+---
+import { nav } from "@/config/site";
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isCurrent = (to: string) => path === to || path.startsWith(`${to}/`);
+---
+
+<header class="ok-nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Open Knowledge Belgium, home">
+      <img src="/logo/okbe-withname.svg" alt="Open Knowledge Belgium" width="170" height="40" />
+    </a>
+    <nav aria-label="Main">
+      <ul class="links">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.to} aria-current={isCurrent(item.to) ? "page" : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn btn-primary" href="/donate" aria-current={isCurrent("/donate") ? "page" : undefined}>Donate</a>
+      <details class="menu">
+        <summary>Menu</summary>
+        <ul>
+          {
+            nav.map((item) => (
+              <li>
+                <a href={item.to} aria-current={isCurrent(item.to) ? "page" : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>(".ok-nav .menu");
+  if (menu) {
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && menu.open) {
+        menu.open = false;
+        menu.querySelector("summary")?.focus();
+      }
+    });
+    document.addEventListener("click", (ev) => {
+      if (menu.open && !menu.contains(ev.target as Node)) menu.open = false;
+    });
+  }
+</script>

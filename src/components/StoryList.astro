@@ -1,0 +1,36 @@
+---
+// Stories as a dated list, grouped by year. No cards: the title is the link.
+import type { Story } from "@/lib/content";
+
+interface Props {
+  stories: Story[];
+}
+const { stories } = Astro.props;
+
+const dayMonth = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
+const years = new Map<number, Story[]>();
+for (const s of stories) {
+  const y = s.data.date.getFullYear();
+  years.set(y, [...(years.get(y) ?? []), s]);
+}
+---
+
+<div class="ok-stories">
+  {
+    [...years.entries()].map(([year, list]) => (
+      <section class="year">
+        <h2>{year}</h2>
+        <ul>
+          {list.map((s) => (
+            <li>
+              <a href={`/stories/${s.id}`}>
+                <time datetime={s.data.date.toISOString().slice(0, 10)}>{dayMonth.format(s.data.date)}</time>
+                <span class="title">{s.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

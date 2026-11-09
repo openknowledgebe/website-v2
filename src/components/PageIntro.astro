@@ -1,0 +1,28 @@
+---
+// The top of every inner page: optional way back, the title, one line, optional actions.
+import Arrow from "@/components/Arrow.astro";
+
+interface Props {
+  title: string;
+  lede?: string;
+  back?: { href: string; label: string };
+}
+const { title, lede, back } = Astro.props;
+---
+
+<section class="ok-intro">
+  <div class="wrap">
+    {
+      back && (
+        <a class="arrow-link back" href={back.href}>
+          <Arrow dir="left" />
+          {back.label}
+        </a>
+      )
+    }
+    <slot name="before" />
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+  </div>
+</section>

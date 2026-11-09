@@ -1,6 +1,6 @@
 ---
 name: HackYourFuture Belgium
-status: past
+status: independent
 logo: /uploads/activities/hackyourfuture-belgium/hyfbe-logo.png
 color: '#ffffff'
 tags:
@@ -17,9 +17,14 @@ contact_info:
   socials:
     twitter: https://twitter.com/hackyourfuture_
   email: info@hackyourfuture.be
-members: []
+members:
+  - name: Lizhen Xu
+    task: Managed HackYourFuture Belgium
+    picture: /uploads/team/lizhen-photo.jpg
 ---
 
-HackYourFuture Belgium was a coding school for refugees and people from a vulnerable background. Founded in 2018 as part of an international network, it trained motivated newcomers to become web developers and supported them on their way to a job in the Belgian tech sector.
+HackYourFuture Belgium is a coding school for refugees and people from a vulnerable background. Founded in 2018 as part of an international network, it trains motivated newcomers to become web developers and supports them on their way to a job in the Belgian tech sector.
 
-Through a mix of online learning, in-person class days and mentorship from volunteers in the industry, it turned open education and an open community into real opportunities — helping people rebuild their careers and lives.
+Through a mix of online learning, in-person class days and mentorship from volunteers in the industry, it turns open education and an open community into real opportunities, helping people rebuild their careers and lives.
+
+HackYourFuture Belgium grew under the Open Knowledge Belgium roof and has since spun out as an organisation of its own: a success story we are proud of. You find it at [hackyourfuture.be](https://hackyourfuture.be/).

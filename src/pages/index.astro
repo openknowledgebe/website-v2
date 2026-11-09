@@ -1,163 +1,178 @@
 ---
-import { getEntry } from "astro:content";
-import PageLayout from "@/layouts/PageLayout.astro";
-import { Hero } from "@/components/react/Hero";
-import { ActivitiesGrid } from "@/components/react/ActivitiesGrid";
-import { StoriesGrid, type StoryItem } from "@/components/react/StoriesGrid";
-import { NewsletterCTA } from "@/components/react/NewsletterCTA";
-import { Reveal } from "@/components/react/Reveal";
-import {
-  getActivitiesByStatus,
-  toActivityCard,
-  getSortedStories,
-  formatDate,
-  storyExcerpt,
-} from "@/lib/content";
-import { site } from "@/config/site";
+import { getCollection, getEntry } from "astro:content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import IrailMap from "@/components/IrailMap.astro";
+import GivePanel from "@/components/GivePanel.astro";
+import GiveCase from "@/components/GiveCase.astro";
+import Arrow from "@/components/Arrow.astro";
+import { activityImage, statusLine } from "@/lib/content";
+import stations from "@/data/stations.json";
+import { site, donate } from "@/config/site";
 
-const home = await getEntry("pages", "home");
-const h = home!.data as any;
+const activities = await getCollection("activities");
+const byId = new Map(activities.map((a) => [a.id, a]));
 
-const { active: activeActivities } = await getActivitiesByStatus();
-const activeItems = activeActivities.map(toActivityCard);
+// The projects shown as photographs, in this order. `img` overrides the project's own picture.
+const tiles: { id: string; alt: string; size: string; img?: string }[] = [
+  { id: "equalstreetnames", alt: "Map of Brussels with every street coloured by the gender of the person it is named after", size: "wide" },
+  { id: "hackyourfuture-belgium", alt: "HackYourFuture Belgium students talking around a table", size: "side" },
+  { id: "openstreetmap-belgium", alt: "The OpenStreetMap Belgium community posing outdoors", size: "" },
+  { id: "open-belgium", alt: "The volunteer crew of the Open Belgium 2019 conference on stage", size: "" },
+  { id: "open-summer-of-code", img: "/uploads/web/home/osoc18.webp", alt: "Students and coaches of Open Summer of Code cheering in a courtyard", size: "" },
+].flatMap((t) => {
+  const a = byId.get(t.id);
+  const img = t.img ?? (a ? activityImage(a) : null);
+  return a && img
+    ? [{ ...t, img, name: a.data.name, line: a.data.catchphrase ?? "", state: a.data.status === "independent" ? statusLine(a) : "" }]
+    : [];
+});
 
-const stories = (await getSortedStories()).slice(0, 3);
-const storyItems: StoryItem[] = stories.map((s) => ({
-  slug: s.id,
-  title: s.data.title,
-  date: formatDate(s.data.date),
-  author: s.data.author,
-  excerpt: storyExcerpt(s),
-  tags: s.data.tags ?? [],
-  href: `/stories/${s.id}`,
-}));
+const shown = new Set(["irail", ...tiles.map((t) => t.id)]);
+const others = activities.filter((a) => !shown.has(a.id)).sort((a, b) => a.data.name.localeCompare(b.data.name));
 
-const values = [
-  { title: "Advocacy", body: "We champion openness with governments, organisations and the public." },
-  { title: "Research", body: "We explore how open data and knowledge create real-world value." },
-  { title: "Technology", body: "We build and support open-source tools that unlock information." },
-  { title: "Community", body: "We connect people and projects so ideas cross-pollinate." },
-];
+// Board members come from the team page content, so there is one place to edit them.
+type BoardMember = { name: string; photo?: string; linkedin?: string };
+const team = await getEntry("pages", "team");
+const board: BoardMember[] = (team?.data as any)?.board?.members ?? [];
+const initials = (name: string) => {
+  const parts = name.split(/\s+/);
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+const description =
+  "The non-profit home of iRail and Open Summer of Code, and the place where OpenStreetMap Belgium and HackYourFuture Belgium grew up. Kept open by gifts.";
 ---
 
-<PageLayout title={site.name} description={site.description}>
-  <Hero
-    client:load
-    tagline={h.header.tagline}
-    mission={h.header.mission}
-    cta={h.header.cta}
-    secondaryCta={{ label: "See our activities", to: "/activities" }}
-    image={{ src: h.header.featured_image.image, alt: "Open Knowledge Belgium community" }}
+<SiteLayout title={site.name} description={description}>
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href="/uploads/web/home/hero-1400.webp"
+    imagesrcset="/uploads/web/home/hero-mobile-1000.webp 1000w, /uploads/web/home/hero-1400.webp 1400w, /uploads/web/home/hero-2400.webp 2400w"
+    imagesizes="100vw"
   />
 
-  <!-- What we do -->
-  <section class="border-y border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24">
-    <div class="mx-auto w-full max-w-[1280px]">
-      <Reveal client:visible>
-        <p class="text-small font-semibold uppercase tracking-wide text-electric">What we do</p>
-        <h2 class="mt-3 max-w-[42rem] text-h2 font-bold text-neutral-darkest">
-          Unlocking knowledge so everyone can use and share it
-        </h2>
-      </Reveal>
-      <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {values.map((v, i) => (
-          <Reveal client:visible delay={i * 0.08}>
-            <div class="h-full rounded-card border border-neutral-light bg-white p-6">
-              <div class="flex size-11 items-center justify-center rounded-full bg-electric/10 text-h6 font-bold text-electric">
-                {i + 1}
-              </div>
-              <h3 class="mt-5 text-h6 font-bold text-neutral-darkest">{v.title}</h3>
-              <p class="mt-2 text-regular text-neutral-dark">{v.body}</p>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- Activities -->
-  <section class="px-[5%] py-16 md:py-24 lg:py-28">
-    <div class="mx-auto w-full max-w-[1280px]">
-      {activeItems.length > 0 ? (
-        <>
-          <Reveal client:visible>
-            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <div class="flex items-center gap-3">
-                  <span class="size-2.5 rounded-full bg-emerald-500"></span>
-                  <p class="text-small font-semibold uppercase tracking-wide text-electric">Active now</p>
-                </div>
-                <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">What we're working on</h2>
-              </div>
-              <a href="/activities" class="text-medium font-semibold text-electric hover:underline">
-                See all activities →
-              </a>
-            </div>
-          </Reveal>
-          <div class="mt-12">
-            <ActivitiesGrid client:visible items={activeItems} />
-          </div>
-        </>
-      ) : (
-        <Reveal client:visible>
-          <div class="relative overflow-hidden rounded-[1.5rem] border border-neutral-light bg-neutral-lighter px-6 py-12 md:px-12 md:py-16">
-            <div aria-hidden class="pointer-events-none absolute -top-20 -right-16 h-72 w-72 rounded-full bg-electric/10 blur-3xl"></div>
-            <div class="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div class="max-w-[42rem]">
-                <p class="text-small font-semibold uppercase tracking-wide text-electric">Activities</p>
-                <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">
-                  No active projects right now
-                </h2>
-                <p class="mt-4 text-medium text-neutral-dark">
-                  Have an idea for an open-knowledge project? We help open communities get off the
-                  ground — from a first meetup to a lasting initiative.
-                </p>
-              </div>
-              <div class="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
-                <a
-                  href={`mailto:${site.email}?subject=${encodeURIComponent("I have an idea for an activity")}`}
-                  class="rounded-button bg-electric px-6 py-3 text-center text-medium font-semibold text-white transition-colors hover:bg-electric-600"
-                >
-                  Start an activity
-                </a>
-                <a
-                  href="/activities"
-                  class="rounded-button border border-neutral-darkest px-6 py-3 text-center text-medium font-semibold text-neutral-darkest transition-colors hover:bg-neutral-darkest hover:text-white"
-                >
-                  See what we've done →
-                </a>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      )}
-    </div>
-  </section>
-
-  <!-- Stories -->
-  <section class="border-t border-neutral-light bg-neutral-lighter px-[5%] py-16 md:py-24 lg:py-28">
-    <div class="mx-auto w-full max-w-[1280px]">
-      <Reveal client:visible>
-        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p class="text-small font-semibold uppercase tracking-wide text-electric">Stories</p>
-            <h2 class="mt-3 text-h2 font-bold text-neutral-darkest">The latest from our community</h2>
-          </div>
-          <a href="/stories" class="text-medium font-semibold text-electric hover:underline">
-            Discover all stories →
-          </a>
+  <section class="ok-open">
+    <div class="wrap">
+      <h1>{site.tagline}.</h1>
+      <div>
+        <p class="lede">
+          Open Knowledge Belgium is the non-profit home of iRail and Open Summer of Code. OpenStreetMap Belgium and
+          HackYourFuture Belgium grew up here. Since 2012.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#give">Donate</a>
+          <a class="arrow-link" href="#live">See what we keep running <Arrow dir="down" /></a>
         </div>
-      </Reveal>
-      <div class="mt-12">
-        <StoriesGrid client:visible items={storyItems} />
       </div>
     </div>
   </section>
 
-  <NewsletterCTA
-    client:visible
-    heading={h.newsletter.heading}
-    subheading={h.newsletter.subheading}
-    contactEmail={site.email}
-  />
-</PageLayout>
+  <figure class="ok-hero">
+    <picture>
+      <source media="(max-width: 40rem)" srcset="/uploads/web/home/hero-mobile-1000.webp" width="1000" height="667" />
+      <img
+        src="/uploads/web/home/hero-1400.webp"
+        srcset="/uploads/web/home/hero-1400.webp 1400w, /uploads/web/home/hero-2400.webp 2400w"
+        sizes="100vw"
+        width="2400"
+        height="1200"
+        alt="About a hundred students and coaches in red, green, yellow and blue T-shirts, seen from above, waving at the camera"
+        fetchpriority="high"
+      />
+    </picture>
+    <figcaption class="wrap"><a href="/activities/open-summer-of-code">Open Summer of Code</a>, 2019</figcaption>
+  </figure>
+
+  <section class="ok-section ok-live" id="live">
+    <div class="wrap">
+      <div class="grid">
+        <IrailMap />
+        <div class="note">
+          <h2>iRail opens up Belgian train data.</h2>
+          <p>
+            Timetables and live departures for all {stations.length} stations, free for anyone to build on. It
+            answers about 1.2 million requests a day. Open Knowledge Belgium hosts it.
+          </p>
+          <div class="actions">
+            <a class="btn btn-quiet" href="https://irail.be/" rel="noopener">Visit irail.be <Arrow /></a>
+            <a class="arrow-link" href="/activities/irail">About iRail <Arrow /></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ok-section ok-made">
+    <div class="wrap">
+      <header>
+        <h2>Also made here</h2>
+      </header>
+      <ul class="ok-mosaic">
+        {
+          tiles.map((t) => (
+            <li class={t.size}>
+              <a href={`/activities/${t.id}`}>
+                <div class="frame">
+                  <img src={t.img} alt={t.alt} loading="lazy" decoding="async" />
+                </div>
+                <h3>{t.name}</h3>
+                <p>{t.line}</p>
+                {t.state && <p class="state">{t.state}</p>}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="ok-more">
+        <p class="names muted">
+          And{" "}
+          {others.map((a, i) => [<a href={`/activities/${a.id}`}>{a.data.name}</a>, i < others.length - 2 ? ", " : i === others.length - 2 ? " and " : "."])}
+        </p>
+        <a class="arrow-link" href="/activities">All projects <Arrow /></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ok-section ok-give" id="give">
+    <div class="wrap">
+      <header>
+        <h2>{donate.headline}</h2>
+        <GiveCase short />
+      </header>
+      <GivePanel />
+    </div>
+  </section>
+
+  <section class="ok-section ok-people">
+    <div class="wrap">
+      <div class="grid">
+        <div class="intro">
+          <h2>A new board since September 2026</h2>
+          <p>Three people today. We are looking for volunteers.</p>
+          <a class="arrow-link" href="/team">Meet the team <Arrow /></a>
+        </div>
+        <ul class="board">
+          {
+            board.map((p) => (
+              <li>
+                {p.photo ? (
+                  <img class="portrait" src={p.photo} width="560" height="560" alt="" loading="lazy" decoding="async" />
+                ) : (
+                  <div class="portrait blank" aria-hidden="true">{initials(p.name)}</div>
+                )}
+                <h3>{p.linkedin ? <a href={p.linkedin} rel="noopener">{p.name}</a> : p.name}</h3>
+                <p>Board</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <figure class="ok-band">
+    <img src="/uploads/web/home/working-session.webp" width="1800" height="1200" alt="A full room of students working on laptops at shared tables under strings of bunting" loading="lazy" decoding="async" />
+  </figure>
+</SiteLayout>
